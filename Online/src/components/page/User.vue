@@ -173,11 +173,11 @@
                 this.$message.error('删除了' + str);
                 this.multipleSelection = [];
 				// 关闭头部标签
-				let closedObj = document.getElementsByClassName("tags")[0].children[0].getElementsByClassName("active")[0].getElementsByClassName("tags-li-icon")[0];
+				/* let closedObj = document.getElementsByClassName("tags")[0].children[0].getElementsByClassName("active")[0].getElementsByClassName("tags-li-icon")[0];
 				console.log(closedObj);
 				//closedObj.click();
 				let closedTasli = this.$refs;
-				console.log(closedTasli);
+				console.log(closedTasli); */
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
