@@ -9,7 +9,7 @@
     </div>
     <div class="container">
       <div class="handle-box">
-        <a href="https://10.11.56.164:9000/goods/find">123</a>
+   
         <el-button type="success" icon="el-icon-goods" @click="addgoods">添加商品</el-button>
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
         <!-- <el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">
