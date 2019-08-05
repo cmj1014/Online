@@ -38,6 +38,11 @@ export default new Router({
 				    path: '/advertise',
 				    component: resolve => require(['../components/page/Advertise.vue'], resolve),
 				    meta: { title: '广告管理' }
+                },
+                {
+				    path: '/sendCode',
+				    component: resolve => require(['../components/page/SendCode.vue'], resolve),
+				    meta: { title: '短信管理' }
 				},
                 {
                     path: '/icon',

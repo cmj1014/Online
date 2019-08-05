@@ -62,6 +62,11 @@
 					    icon: 'el-icon-lx-goodsfill',
 					    index: 'advertise',
 					    title: '广告管理'
+                    },
+                    {
+					    icon: 'el-icon-lx-goodsfill',
+					    index: 'sendCode',
+					    title: '短信管理'
 					},
                     {
                         icon: 'el-icon-lx-cascades',
