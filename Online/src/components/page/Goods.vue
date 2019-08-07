@@ -9,7 +9,6 @@
     </div>
     <div class="container">
       <div class="handle-box">
-
         <el-button type="success" icon="el-icon-goods" @click="addgoods">添加商品</el-button>
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
         <!-- <el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">
@@ -66,13 +65,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog
-      title="添加商品"
-      :visible.sync="centerDialogVisible"
-      width="56%"
-      center
-      before-close="resetForm(form)"
-    >
+    <el-dialog title="添加商品" :visible.sync="centerDialogVisible" width="56%" center>
       <div class="container" v-if="formStatus">
         <div class="form-box">
           <el-form ref="form" :model="form" label-width="80px" :rules="rules">
@@ -201,7 +194,7 @@
 
 <script>
 import { fetchData, daxunxun } from '../../api/index'
-import getGoods from '../../action/Goods/index'
+import { getGoods, getGoodsTest } from '../../action/Goods/index'
 import { Options } from '../../data/goods/index'
 export default {
   data() {
@@ -304,11 +297,13 @@ export default {
       //   this.tableData = res.list
       //   console.log(333, res)
       // })
-      getGoods({
-        name: this.form.name
-      }).then(res => {
-        console.log('res', res)
-      })
+      console.log('getData')
+      getGoods()
+      // getGoods({
+      //   //name: this.form.name
+      // }).then(res => {
+      //   console.log('res', res)
+      // })
     },
     gettsgData() {
       console.log(Options)
