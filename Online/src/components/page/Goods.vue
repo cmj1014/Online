@@ -9,6 +9,7 @@
     </div>
     <div class="container">
       <div class="handle-box">
+
         <el-button type="success" icon="el-icon-goods" @click="addgoods">添加商品</el-button>
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
         <!-- <el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">
