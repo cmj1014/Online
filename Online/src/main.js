@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios';
+import mockdata from "./mock";
 import ElementUI from 'element-ui';
 // import { Carousel } from 'element-ui';
 import VueI18n from 'vue-i18n';
@@ -14,6 +15,7 @@ import "babel-polyfill";
 
 Vue.config.productionTip = false
 Vue.use(VueI18n);
+Vue.use(mockdata);
 // Vue.use(Carousel);
 Vue.use(ElementUI, {
     size: 'small'

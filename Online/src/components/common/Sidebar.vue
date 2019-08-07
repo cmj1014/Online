@@ -43,7 +43,7 @@
                         index: 'dashboard',
                         title: '系统首页'
                     },
-					{
+                    {
 					    icon: 'el-icon-lx-friend',
 					    index: 'user',
 					    title: '用户管理'
@@ -58,10 +58,15 @@
 					    index: 'post',
 					    title: '公告管理'
 					},
-					{
+                    {
 					    icon: 'el-icon-lx-goodsfill',
 					    index: 'advertise',
 					    title: '广告管理'
+                    },
+                    {
+					    icon: 'el-icon-lx-goodsfill',
+					    index: 'sendCode',
+					    title: '短信管理'
 					},
                     {
                         icon: 'el-icon-lx-cascades',
@@ -153,6 +158,7 @@
                         index: '/donate',
                         title: '支持作者'
                     }
+                    
                 ]
             }
         },

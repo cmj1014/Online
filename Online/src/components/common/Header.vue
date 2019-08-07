@@ -5,13 +5,6 @@
       <i class="el-icon-menu"></i>
     </div>
     <div class="logo">后台管理系统</div>
-    <!-- <div class="block" >
-      <el-carousel height="45px">
-        <el-carousel-item v-for="item in list" :key="item">
-          <h3 class="small">{{ item }}</h3>
-        </el-carousel-item>
-      </el-carousel>
-    </div>-->
     <div class="block">
       <el-carousel height="40px" direction="vertical" :autoplay="true">
         <el-carousel-item v-for="item in list" :key="item">
