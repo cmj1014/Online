@@ -9,7 +9,6 @@
     </div>
     <div class="container">
       <div class="handle-box">
-        <a href="https://10.11.56.164:9000/goods/find">123</a>
         <el-button type="success" icon="el-icon-goods" @click="addgoods">添加商品</el-button>
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
         <!-- <el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">
@@ -66,8 +65,14 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="添加商品" :visible.sync="centerDialogVisible" width="56%" center>
-      <div class="container">
+    <el-dialog
+      title="添加商品"
+      :visible.sync="centerDialogVisible"
+      width="56%"
+      center
+      before-close="resetForm(form)"
+    >
+      <div class="container" v-if="formStatus">
         <div class="form-box">
           <el-form ref="form" :model="form" label-width="80px" :rules="rules">
             <el-form-item label="商品名称" prop="name">
@@ -75,24 +80,35 @@
             </el-form-item>
 
             <el-row :gutter="30">
-              <el-col :span="10">
+              <el-col :span="8">
                 <div class="grid-content bg-purple">
                   <el-form-item label="商品数量">
                     <el-input-number v-model="form.num" :min="1" :max="999999999" label="商品数量"></el-input-number>
                   </el-form-item>
                 </div>
               </el-col>
-              <el-col :span="7">
+
+              <el-col :span="8">
                 <div class="grid-content bg-purple">
                   <el-form-item label="正常价格" prop="normal_price">
-                    <el-input v-model="form.normal_price"></el-input>
+                    <el-input-number
+                      v-model="form.normal_price"
+                      type="number"
+                      :min="0"
+                      :max="999999999"
+                    ></el-input-number>
                   </el-form-item>
                 </div>
               </el-col>
-              <el-col :span="7">
+              <el-col :span="8">
                 <div class="grid-content bg-purple">
                   <el-form-item label="促销价格" prop="promotion_price">
-                    <el-input v-model="form.promotion_price"></el-input>
+                    <el-input-number
+                      v-model="form.promotion_price"
+                      type="number"
+                      :min="0"
+                      :max="999999999"
+                    ></el-input-number>
                   </el-form-item>
                 </div>
               </el-col>
@@ -110,13 +126,25 @@
               </el-col>
             </el-row>
 
-            <el-form-item label="商品规格" ref="specification" :v-model="form.specification">
-              <div class="grid-content bg-purple"></div>
-              <el-button type="primary" icon="el-icon-plus" circle @click="showSpecification=true"></el-button>
+            <el-form-item label="分类" ref="tag">
+              <el-cascader
+                @focus="gettsgData"
+                :options="options"
+                v-model="form.tag"
+                :show-all-levels="false"
+                clearable
+                ref="tagOp"
+              ></el-cascader>
             </el-form-item>
 
-            <el-form-item label="分类" ref="tag" :v-model="tag">
-              <el-button type="primary" icon="el-icon-plus" circle @click="showTag=true"></el-button>
+            <el-form-item label="商品规格" ref="specification">
+              <el-input
+                v-model="form.specification"
+                placeholder="输入自定义规格,有多个规格请用逗号隔开，如：XL，XXL，L，M，S"
+                prop="specification"
+              ></el-input>
+
+              <!-- <el-button type="primary" icon="el-icon-plus" circle @click="showSpecification=true"></el-button> -->
             </el-form-item>
 
             <el-row :gutter="20">
@@ -149,16 +177,13 @@
       </span>
     </el-dialog>
     <!-- 添加商品规格 -->
-    <el-dialog title="添加商品规格" :visible.sync="showSpecification" width="30%" center>
-      <span>输入自定义规格，如：XL</span>
-      <div>
-        <el-input v-model="form.specification" placeholder="请输入商品规格"></el-input>
-      </div>
+    <!-- <el-dialog title="添加商品规格" :visible.sync="showSpecification" width="30%" center>
+     
       <span slot="footer" class="dialog-footer">
         <el-button @click="showSpecification = false">取 消</el-button>
         <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
       </span>
-    </el-dialog>
+    </el-dialog>-->
     <!-- 添加分类 -->
     <el-dialog title="分类" :visible.sync="showTag" width="30%" center>
       <span>输入自定义规格，如：XL</span>
@@ -176,9 +201,13 @@
 <script>
 import { fetchData, daxunxun } from '../../api/index'
 import getGoods from '../../action/Goods/index'
+import { Options } from '../../data/goods/index'
 export default {
   data() {
     return {
+      formStatus: true,
+      options: Options,
+      specification: '',
       showTag: false,
       goods_word: '', // 搜索内容
       pageAllNum: 1000, //中页数
@@ -197,20 +226,20 @@ export default {
       delVisible: false,
       //提交表单属性
       form: {
-        specification: [], // 商品规格
+        specification: '', // 商品规格
         name: '',
         num: 1,
         normal_price: 0,
         promotion_price: 0,
         promotion: false,
         new: false,
-        tag: []
+        tag: ''
       },
       // 输入验证
       rules: {
         name: [
           { required: true, message: '请输入商品名称', trigger: 'blur' },
-          { min: 1, max: 35, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+          { min: 3, max: 35, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ]
       }
     }
@@ -241,6 +270,8 @@ export default {
       })
     }
   },
+  // 注册组件
+  components: {},
   methods: {
     onSubmit() {
       console.log('添加商品成功')
@@ -278,9 +309,28 @@ export default {
         console.log('res', res)
       })
     },
+    gettsgData() {
+      console.log(Options)
+      this.options = Options
+    },
+    // 商品重置
     resetForm(formName) {
+      console.log(this.$refs.tagOp)
+      //this.$refs.tagOp.$options.propsData.options = {}
+      //this.options = {}
+      //this.form.tag = ''
+      this.options = ''
       this.$refs[formName].resetFields()
+      //console.log(this.$refs.tagOp.getCheckedNodes)
+      //this.formStatus = false
       this.form.num = 1
+      this.form.specification = ''
+      this.form.promotion = false
+      this.form.new = false
+
+      setTimeout(() => {
+        //this.formStatus = true
+      }, 1)
     },
 
     // 添加规格
@@ -324,6 +374,9 @@ export default {
     addgoods() {
       this.$message('添加商品')
       this.centerDialogVisible = 'true'
+    },
+    test() {
+      alert('1323131test')
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
