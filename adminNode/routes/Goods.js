@@ -52,11 +52,13 @@ router.get('/gsearch', function(req, res, next) {
 router.post('/insert', function(req, res, next) {
      console.log(Date.now())
     var insertData = req.body;
+	console.log(insertData)
     insertData.id = Date.now()
-    if (insertData.name && insertData.shop_name && insertData.image_url && insertData.normal_price
-        && insertData.promotion_price && insertData.more_txt && insertData.more_url
-        && insertData.tag && insertData.num && insertData.state && insertData.promotion
-        && insertData.new && insertData.specification && insertData.id){
+	console.log(typeof(insertData))
+    if (insertData.name!=="" && insertData.shop_name!=="" && insertData.image_url && insertData.normal_price!==""
+        && insertData.promotion_price!=="" && insertData.more_txt!=="" && insertData.more_url!==""
+        && insertData.tag!=="" && insertData.num!=="" && insertData.state!=="" && insertData.promotion!==""
+        && insertData.new!=="" && insertData.specification !==""&& insertData.id!==""){
         sql.insert(goodsinfo,insertData).then((data) => {
             res.send({
                 "code": "1",
@@ -134,10 +136,10 @@ router.post('/updata', function(req, res, next) {
     if (req.body.id) {
         sql.find(goodsinfo,{id: req.body.id}).then( (data) =>{
             if (data.length === 1 ) {
-                if (req.body.name && req.body.image_url && req.body.normal_price &&
-                    req.body.promotion_price && req.body.more_txt && req.body.more_url &&
-                    req.body.tag && req.body.num && req.body.state &&
-                    req.body.promotion && req.body.new && req.body.specification
+                if (req.body.name !==""&& req.body.image_url!=="" && req.body.normal_price !==""&&
+                    req.body.promotion_price !==""&& req.body.more_txt !==""&& req.body.more_url!=="" &&
+                    req.body.tag !==""&& req.body.num !==""&& req.body.state!=="" &&
+                    req.body.promotion !==""&& req.body.new !==""&& req.body.specification!==""
                 ) {
                     sql.update(goodsinfo, {id: req.body.id}, {
                         name: req.body.name,
@@ -191,12 +193,12 @@ router.get('/find', function(req, res, next) {
     // console.log(whereObj)
     let count = 12; //默认显示多少条数据
     let start = 0; //默认从多少条开始数据
-    let sort = 0 ; //默认排序
+    let sort = {id:-1} ; //默认排序
     let range_gt = 0 ; //默认大于多少价格
     let range_lt = 999999 ; //默认小于多少价格
     count = isparam(whereObj.count, 12);
     start = isparam(whereObj.start, 0);
-    sort = isparam(whereObj.sort, 0);
+
     range_gt = isparam(whereObj.range_gt, 0);
     range_lt = isparam(whereObj.range_lt, 999999);
     if(whereObj.range_gt && whereObj.range_lt) {
@@ -215,6 +217,7 @@ router.get('/find', function(req, res, next) {
         delete whereObj.start;
     }
     if (whereObj.sort) {
+		sort = whereObj.sort;
         delete whereObj.sort;
     }
     if (whereObj.range_gt) {
@@ -223,7 +226,7 @@ router.get('/find', function(req, res, next) {
     if (whereObj.range_lt) {
         delete whereObj.range_lt;
     }
-    sql.find(goodsinfo, whereObj, count, start, {normal_price: sort}).then((data) => {
+    sql.find(goodsinfo, whereObj, count, start, sort).then((data) => {
         console.log(whereObj)
         // console.log(data)
         let arr = new Object; //存内容

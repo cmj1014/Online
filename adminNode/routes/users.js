@@ -19,7 +19,7 @@ router.post('/register', function(req, res, next) {
   whereObj.user_lv = 1;
   initial(whereObj.user_headurl,whereObj.user_headurl = 'http://img5.imgtn.bdimg.com/it/u=15931221,351467408&fm=26&gp=0.jpg');
   whereObj.user_state =1;
-  if (whereObj.user_name && whereObj.user_pwd && whereObj.user_tel){
+  if (whereObj.user_name!=="" && whereObj.user_pwd!=="" && whereObj.user_tel!==""){
     sql.find(user, {user_tel: whereObj.user_tel }).then(data => {
       if (data.length === 0 ){
         const saltRounds = 10;
@@ -104,9 +104,9 @@ router.get('/find', function(req, res, next) {
   // whereObj.user_state =  isparam(whereObj.user_state, 0);
   range_gt = isparam(whereObj.range_gt, 0);
   range_lt = isparam(whereObj.range_lt, 999999);
-  if(whereObj.range_gt && whereObj.range_lt) {
+  if(whereObj.range_gt !==""&& whereObj.range_lt!=="") {
     whereObj.user_age = {$gt: whereObj.range_gt, $lt: whereObj.range_lt}
-  }else if (whereObj.range_gt) {
+  }else if (whereObj.range_gt!=="") {
     whereObj.user_age ={ $gt: range_gt}
     // console.log(whereObj)
     // console.log(whereObj.normal_price)
@@ -189,7 +189,7 @@ router.post('/delete', function(req, res, next) {
 // 商品恢复，改变商品State状态
 router.post('/resume', function(req, res, next) {
   console.log(req.body)
-  if (req.body.user_tel) {
+  if (req.body.user_tel!=="") {
     sql.find(user,{user_tel: req.body.user_tel}).then( (data) =>{
       if (data.length === 1 ) {
         sql.update(user,{user_tel: req.body.user_tel}, {user_state: 1}).then((err,data) =>{
@@ -222,7 +222,7 @@ router.post('/resume', function(req, res, next) {
 // 修改用户信息
 router.post('/updata', function(req, res, next) {
   var whereObj = req.body
-  if (req.body.user_tel) {
+  if (req.body.user_tel!=="") {
     sql.find(user,{user_tel: req.body.user_tel}).then( (data) =>{
       if (data.length === 1 ) {
           sql.update(user, {user_tel: req.body.user_tel}, {

@@ -19,16 +19,29 @@
         <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
       </div>
       <el-table
-        :data="data"
+        stripe
+        :data="tableData"
         border
         class="table"
         ref="multipleTable"
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" align="center"></el-table-column>
-        <el-table-column prop="date" label="日期" sortable width="150"></el-table-column>
-        <el-table-column prop="name" label="姓名" width="120"></el-table-column>
-        <el-table-column prop="address" label="地址" :formatter="formatter"></el-table-column>
+        <el-table-column prop="name" label="商品名" label-width="auto" align="center"></el-table-column>
+        <el-table-column prop="normal_price" label="正常价格" width="80" align="center"></el-table-column>
+        <el-table-column prop="promotion_price" label="促销价格" width="80" align="center"></el-table-column>
+        <el-table-column prop="num" label="商品数量" width="80" align="center"></el-table-column>
+
+        <el-table-column
+          prop="promotion"
+          label="促销标签"
+          width="80"
+          align="center"
+          :formatter="formatter"
+        ></el-table-column>
+        <el-table-column prop="new" label="新品标签" width="80" align="center" :formatter="formatter"></el-table-column>
+        <el-table-column prop="state" label="是否上架" width="80" align="center" :formatter="formatter"></el-table-column>
+
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
             <el-button
@@ -118,9 +131,20 @@
                   <el-switch v-model="form.promotion"></el-switch>
                 </el-form-item>
               </el-col>
+
+              <el-col :span="5">
+                <el-form-item label="是否上架">
+                  <el-switch v-model="form.state"></el-switch>
+                </el-form-item>
+              </el-col>
             </el-row>
 
-            <el-form-item label="分类" ref="tag">
+            <el-form-item
+              label="分类"
+              ref="tag"
+              prop="tag"
+              :rules="{required: true, message: '不能为空', trigger: 'change'}"
+            >
               <el-cascader
                 @focus="gettsgData"
                 :options="options"
@@ -131,11 +155,18 @@
               ></el-cascader>
             </el-form-item>
 
-            <el-form-item label="商品规格" ref="specification">
+            <el-form-item
+              label="商品规格"
+              ref="specification"
+              prop="specification"
+              :rules="{
+      required: true, message: '不能为空', trigger: 'blur'
+    }"
+            >
               <el-input
                 v-model="form.specification"
                 placeholder="输入自定义规格,有多个规格请用逗号隔开，如：XL，XXL，L，M，S"
-                prop="specification"
+                prop="form.specification"
               ></el-input>
 
               <!-- <el-button type="primary" icon="el-icon-plus" circle @click="showSpecification=true"></el-button> -->
@@ -194,11 +225,17 @@
 
 <script>
 import { fetchData, daxunxun } from '../../api/index'
-import { getGoods, getGoodsTest } from '../../action/Goods/index'
+import {
+  getGoods,
+  getGoodsTest,
+  addGoods,
+  delGoods
+} from '../../action/Goods/index'
 import { Options } from '../../data/goods/index'
 export default {
   data() {
     return {
+      tableData: [], // 表单数据
       formStatus: true,
       options: Options,
       specification: '',
@@ -227,13 +264,27 @@ export default {
         promotion_price: 0,
         promotion: false,
         new: false,
-        tag: ''
+        tag: '',
+        image_url: '', //图片,
+        more_txt: '',
+        more_url: '',
+        state: 0,
+        shop_name: '官方出品'
       },
       // 输入验证
       rules: {
         name: [
           { required: true, message: '请输入商品名称', trigger: 'blur' },
-          { min: 3, max: 35, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+          { min: 3, max: 35, message: '长度在 3 到 35 个字符', trigger: 'blur' }
+        ],
+        noNull: [
+          { required: true, message: '请输入内容', trigger: 'blur' },
+          {
+            min: 1,
+            max: 35,
+            message: '长度在 1 到 35 个字符',
+            trigger: 'blur'
+          }
         ]
       }
     }
@@ -267,8 +318,73 @@ export default {
   // 注册组件
   components: {},
   methods: {
+    // 状态转数字
+    isTFAndNum(objstr) {
+      console.log(objstr)
+      if (objstr === true) {
+        objstr = 1
+      } else if (objstr === false) {
+        objstr = 0
+      } else if (objstr === -1) {
+        objstr = -1
+      }
+      return objstr
+    },
+    // 添加商品提交
     onSubmit() {
-      console.log('添加商品成功')
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          console.log('添加商品成功')
+
+          this.form.state = this.isTFAndNum(this.form.state)
+          this.form.promotion = this.isTFAndNum(this.form.promotion)
+          this.form.new = this.isTFAndNum(this.form.new)
+          console.log(this.form.tag)
+          // 应对端口参数不能为空
+          for (const key in this.form) {
+            let val = this.form[key]
+            if (val === '' || val === undefined) {
+              this.form[key] = 'false'
+            } else {
+              //this.form[key] = val + ''
+            }
+          }
+          // 分割分类数组
+          let str = ''
+          this.form.tag.map(v => {
+            str += v + ','
+          })
+          this.form.tag = str.substring(0, str.lastIndexOf(','))
+          console.log(str)
+          console.log(this.form)
+
+          // 调用  添加商品方法
+          addGoods({
+            name: this.form.name,
+            image_url: this.form.image_url,
+            normal_price: this.form.normal_price,
+            promotion_price: this.form.promotion_price,
+            more_txt: this.form.more_txt,
+            more_url: this.form.more_url,
+            tag: this.form.tag,
+            num: this.form.num,
+            state: this.form.state,
+            promotion: this.form.promotion,
+            new: this.form.new,
+            specification: this.form.specification,
+            shop_name: this.form.shop_name
+          }).then(res => {
+            console.log(res)
+            this.$message(res.msg)
+            // 重置
+            this.resetForm('form')
+            this.getData()
+            this.centerDialogVisible = false
+          })
+        } else {
+          this.$message('添加失败')
+        }
+      })
     },
     // 分页导航
     handleCurrentChange(val) {
@@ -276,6 +392,7 @@ export default {
       this.cur_page = val
       this.getData()
     },
+
     handleRemove(file, fileList) {
       console.log(file, fileList)
     },
@@ -283,8 +400,31 @@ export default {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
+
+    // 格式化促销和新品
+    formatter(row, column) {
+      //console.log(row.new)
+      if (row.new === 1 || row.promotion === 1 || row.state === 1) {
+        return '是'
+      } else {
+        return '否'
+      }
+    },
     // 获取 easy-mock 的模拟数据
     getData() {
+      // axios
+      //   .post('/api/user/register', {
+      //     user_name: 'test',
+      //     user_tel: 18939920579,
+      //     user_pwd: '123123',
+      //     user_age: 78,
+      //     user_add: 'zhengge',
+      //     user_headurl: '12312312'
+      //   })
+      //   .then(res => {
+      //     console.log('add user')
+      //     console.log(res)
+      //   })
       // fetchData({
       //   page: this.cur_page
       // }).then(res => {
@@ -297,21 +437,28 @@ export default {
       //   this.tableData = res.list
       //   console.log(333, res)
       // })
-      console.log('getData')
-      getGoods()
-      // getGoods({
-      //   //name: this.form.name
-      // }).then(res => {
-      //   console.log('res', res)
-      // })
+      //console.log('getData')
+      //getGoods()
+      console.log('刷新数据')
+      getGoods({
+        name: this.form.name,
+        count: 20,
+        start: (this.cur_page - 1) * 20
+      }).then(res => {
+        if (res.code === '1') {
+          this.tableData = res.data //表单赋值
+          this.pageAllNum = res.data.length / 20 //总页数
+        }
+        //console.log('res', res.code)
+      })
     },
     gettsgData() {
-      console.log(Options)
+      //console.log(Options)
       this.options = Options
     },
     // 商品重置
     resetForm(formName) {
-      console.log(this.$refs.tagOp)
+      //console.log(this.$refs.tagOp)
       //this.$refs.tagOp.$options.propsData.options = {}
       //this.options = {}
       //this.form.tag = ''
@@ -334,9 +481,7 @@ export default {
     search() {
       this.is_search = true
     },
-    formatter(row, column) {
-      return row.address
-    },
+
     // filterTag(value, row) {
     //   return row.tag === value
     // },
@@ -366,10 +511,11 @@ export default {
       this.$message.error('删除了' + str)
       this.multipleSelection = []
     },
-    // 添加商品
+    // 显示添加商品窗口
     addgoods() {
       this.$message('添加商品')
       this.centerDialogVisible = 'true'
+      resetForm('form')
     },
     test() {
       alert('1323131test')
@@ -394,8 +540,18 @@ export default {
     },
     // 确定删除
     deleteRow() {
-      this.$message.success('删除成功')
-      this.delVisible = false
+      delGoods({
+        id: this.id
+      }).then(res => {
+        if (res.code === '1') {
+          tab: res.data
+          this.$message.success(res.msg)
+          this.delVisible = false
+        } else {
+          this.$message.success(res.msg)
+        }
+      })
+
       if (this.tableData[this.idx].id === this.id) {
         this.tableData.splice(this.idx, 1)
       } else {

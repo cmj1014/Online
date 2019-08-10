@@ -261,7 +261,7 @@ export const Options = [
         label: 'Sketch Templates'
       },
       {
-        value: 'jiaohu',
+        value: '组件交互文档',
         label: '组件交互文档'
       }
     ]
