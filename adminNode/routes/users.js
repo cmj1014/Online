@@ -104,30 +104,31 @@ router.get('/find', function(req, res, next) {
   // whereObj.user_state =  isparam(whereObj.user_state, 0);
   range_gt = isparam(whereObj.range_gt, 0);
   range_lt = isparam(whereObj.range_lt, 999999);
-  if(whereObj.range_gt !==""&& whereObj.range_lt!=="") {
+  if(whereObj.range_gt !==""&& whereObj.range_lt!==""&& whereObj.range_lt!==undefined&& whereObj.range_gt!==undefined) {
     whereObj.user_age = {$gt: whereObj.range_gt, $lt: whereObj.range_lt}
-  }else if (whereObj.range_gt!=="") {
+  }else if (whereObj.range_gt!==""&&whereObj.range_gt!==undefined) {
     whereObj.user_age ={ $gt: range_gt}
     // console.log(whereObj)
     // console.log(whereObj.normal_price)
-  }else if ( whereObj.range_lt) {
+  }else if ( whereObj.range_lt!==""&&whereObj.range_lt!==undefined) {
     whereObj.user_age = { $lt: range_lt}
   }
-  if (whereObj.count) {
+  if (whereObj.count!==""&&whereObj.count!==undefined) {
     delete whereObj.count;
   }
-  if (whereObj.start) {
+  if (whereObj.start!==""&&whereObj.start!==undefined) {
     delete whereObj.start;
   }
-  if (whereObj.sort) {
+  if (whereObj.sort!==""&&whereObj.sort!==undefined) {
     delete whereObj.sort;
   }
-  if (whereObj.range_gt) {
+  if (whereObj.range_gt!==""&&whereObj.range_gt!==undefined) {
     delete whereObj.range_gt;
   }
-  if (whereObj.range_lt) {
+  if (whereObj.range_lt!==""&&whereObj.range_lt!==undefined) {
     delete whereObj.range_lt;
   }
+  console.log(whereObj)
   sql.find(user, whereObj, count, start, {user_regtime: sort}).then((data) => {
     console.log(whereObj)
     console.log(data)
