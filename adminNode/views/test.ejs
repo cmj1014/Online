@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <div>test</div>
+    <p>Welcome to <%= title %></p>
+	<form action="/Goods/find" method="get">
+		<input type="text" name="count" value="20">
+		<input type="submit">
+	</form>
+  </body>
+</html>

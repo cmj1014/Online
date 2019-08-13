@@ -61,7 +61,8 @@
       <!-- 分页 -->
       <div class="pagination">
         <el-pagination
-          background
+          :page-size="pagesize"
+          :background="pagebackground"
           @current-change="handleCurrentChange"
           layout="prev, pager, next"
           :total="pageAllNum"
@@ -229,7 +230,8 @@ import {
   getGoods,
   getGoodsTest,
   addGoods,
-  delGoods
+  delGoods,
+  getPageAllNum
 } from '../../action/Goods/index'
 import { Options } from '../../data/goods/index'
 export default {
@@ -241,7 +243,9 @@ export default {
       specification: '',
       showTag: false,
       goods_word: '', // 搜索内容
-      pageAllNum: 1000, //中页数
+      pageAllNum: 1000, //总页数
+      pagesize: 20, // 单页显示条数
+      pagebackground: true, // 分页背景色
       showSpecification: false, //显示规格
       dialogImageUrl: '',
       dialogVisible: false,
@@ -440,14 +444,20 @@ export default {
       //console.log('getData')
       //getGoods()
       console.log('刷新数据')
+      // 分页用 统计数据数量
+      getPageAllNum({}).then(res => {
+        this.pageAllNum = res.count // 显示中数量
+        //console.log(this.pageAllNum)
+      })
       getGoods({
-        name: this.form.name,
+        name: this.form.name === '' ? undefined : this.form.name,
+        //name:"jee",
         count: 20,
         start: (this.cur_page - 1) * 20
       }).then(res => {
         if (res.code === '1') {
           this.tableData = res.data //表单赋值
-          this.pageAllNum = res.data.length / 20 //总页数
+          //this.pageAllNum = Math.ceil(res.data.length / 20) //总页数
         }
         //console.log('res', res.code)
       })

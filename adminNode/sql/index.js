@@ -38,6 +38,15 @@ const sql = {
 			})
 		})
 	},
+	//统计数量
+	count(Collection, whereObj, showObj) {
+		return new Promise(function(res, rej) {
+			Collection.find(whereObj, showObj).count().exec((err, data) => {
+				if (err) throw err;
+				res(data);
+			})
+		})
+	},
 
 	update(Collection, whereObj, updateObj, updateType) {
 		updateType = updateType || 'updateOne';
