@@ -156,7 +156,7 @@ router.get('/find', function(req, res, next) {
   })
 });
 
-// 统计查询数量
+// 统计用户数量
 router.get('/num', function(req, res, next) {
 	//console.log("/num")
 	let whereObj = req.query;
