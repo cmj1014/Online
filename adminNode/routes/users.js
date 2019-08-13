@@ -156,7 +156,16 @@ router.get('/find', function(req, res, next) {
   })
 });
 
+// 统计查询数量
+router.get('/num', function(req, res, next) {
+	//console.log("/num")
+	let whereObj = req.query;
 
+	sql.count(user, whereObj).then((data) => {
+		//console.log("data",data)
+		res.send({count:data});
+	})
+});
 
 // 封禁账号，改变账号State状态，数据保存数据库，可恢复
 router.post('/delete', function(req, res, next) {
