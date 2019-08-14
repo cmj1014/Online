@@ -9,7 +9,7 @@
     </div>
     <div class="container">
       <div class="handle-box">
-        <el-button type="success" icon="el-icon-goods" @click="addgoods">添加商品</el-button>
+        <el-button type="success" icon="el-icon-goods" @click="showAddgoods">添加商品</el-button>
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
         <!-- <el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">
                     <el-option key="1" label="广东省" value="广东省"></el-option>
@@ -231,7 +231,9 @@ import {
   getGoodsTest,
   addGoods,
   delGoods,
-  getPageAllNum
+  getPageAllNum,
+  getSearch,
+  gsearchNum
 } from '../../action/Goods/index'
 import { Options } from '../../data/goods/index'
 export default {
@@ -250,7 +252,6 @@ export default {
       dialogImageUrl: '',
       dialogVisible: false,
       centerDialogVisible: false,
-      tableData: [],
       cur_page: 1,
       multipleSelection: [],
       select_cate: '',
@@ -447,10 +448,11 @@ export default {
       // 分页用 统计数据数量
       getPageAllNum({}).then(res => {
         this.pageAllNum = res.count // 显示中数量
-        //console.log(this.pageAllNum)
+        console.log(this.pageAllNum)
       })
       getGoods({
         name: this.form.name === '' ? undefined : this.form.name,
+        state: 1,
         //name:"jee",
         count: 20,
         start: (this.cur_page - 1) * 20
@@ -486,10 +488,30 @@ export default {
       }, 1)
     },
 
-    // 添加规格
-    addSpecification() {},
+    // 搜索功能
     search() {
-      this.is_search = true
+      //console.log(this.goods_word)
+      // 提交搜索内容
+      getSearch({
+        sear: this.goods_word
+      }).then(res => {
+        //console.log(res)
+        if (res.code === '1') {
+          // 结果重新赋值到列表
+          this.tableData = res.data
+          //console.log(res.data)
+        }
+      })
+      //console.log('gsearchNum')
+      // 总条数
+      gsearchNum({
+        sear: this.goods_word
+      }).then(res => {
+        //console.log('res', res)
+        // 结果重新赋值到列表
+        this.pageAllNum = res.count
+        //console.log(res.data)
+      })
     },
 
     // filterTag(value, row) {
@@ -522,7 +544,7 @@ export default {
       this.multipleSelection = []
     },
     // 显示添加商品窗口
-    addgoods() {
+    showAddgoods() {
       this.$message('添加商品')
       this.centerDialogVisible = 'true'
       resetForm('form')

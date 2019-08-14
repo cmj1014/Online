@@ -3,6 +3,31 @@ var router = express.Router();
 var goodsinfo = require('../sql/model/goodsinfo');
 var sql = require('./../sql/index'); // <==>  ./../sql
 
+// 商品名模糊搜索数量统计
+router.get('/gsearchNum', function(req, res, next) {
+	//console.log("/gsearchNum")
+	var gSearch = req.query.sear;
+	const reg = new RegExp(gSearch, 'i')
+	//console.log(reg)
+	sql.count(goodsinfo,{
+		$or: [{
+				name: {
+					$regex: reg
+				}
+			},
+			{
+				more_txt: {
+					$regex: reg
+				}
+			}
+		]
+		
+	}).then(data=>{
+		//console.log(data)
+		res.send({count:data})
+	})
+	
+});
 
 // 商品名模糊搜索
 router.get('/gsearch', function(req, res, next) {
@@ -35,7 +60,7 @@ router.get('/gsearch', function(req, res, next) {
 			]
 		}, countnum, startnum).then(data => {
 			if (data.length > 0) {
-				console.log(data)
+				//console.log(data)
 				res.send({
 					"code": "1",
 					"msg": "查询成功",

@@ -1,5 +1,11 @@
 import api from '../../api/DataQuery'
 import axios from 'axios'
+
+/**
+ *
+ * @param {*} 使用get  参数为params，使用 post 参数data
+ */
+
 // 显示数据量
 export const getPageAllNum = query => {
   return api({
@@ -34,6 +40,24 @@ export const addGoods = query => {
   return api({
     url: '/goods/insert', // 请求方法名称
     method: 'POST', // 请求方式
+    data: query // 请求数据
+  })
+}
+// 搜索
+export const getSearch = query => {
+  console.log('search')
+  return api({
+    url: '/goods/gsearch', // 请求方法名称
+    method: 'get', // 请求方式
+    params: query // 请求数据
+  })
+}
+// 搜索数量统计
+export const gsearchNum = query => {
+  console.log('search')
+  return api({
+    url: '/goods/gsearchNum', // 请求方法名称
+    method: 'get', // 请求方式
     params: query // 请求数据
   })
 }
