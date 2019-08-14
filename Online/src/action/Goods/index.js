@@ -61,15 +61,24 @@ export const gsearchNum = query => {
     params: query // 请求数据
   })
 }
-
+// 删除商品
 export const delGoods = query => {
   return api({
     url: '/goods/delete', // 请求方法名称
     method: 'post', // 请求方式
-    params: query // 请求数据
+    data: query // 请求数据
   })
 }
 
+// 恢复商品
+
+export const resumeGoods = query => {
+  return api({
+    url: '/goods/resume', // 请求方法名称
+    method: 'post', // 请求方式
+    data: query // 请求数据
+  })
+}
 export const getGoodsTest = () => {
   console.log('test')
 }

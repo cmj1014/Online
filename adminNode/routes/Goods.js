@@ -320,7 +320,7 @@ router.get('/find', function(req, res, next) {
 router.get('/num', function(req, res, next) {
 	//console.log("/num")
 	let whereObj = req.query;
-
+console.log("whereObj",whereObj)
 	sql.count(goodsinfo, whereObj).then((data) => {
 		//console.log("data",data)
 		res.send({count:data});

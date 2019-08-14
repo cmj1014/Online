@@ -11,10 +11,16 @@
       <div class="handle-box">
         <el-button type="success" icon="el-icon-goods" @click="showAddgoods">添加商品</el-button>
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
-        <!-- <el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">
-                    <el-option key="1" label="广东省" value="广东省"></el-option>
-                    <el-option key="2" label="湖南省" value="湖南省"></el-option>
-        </el-select>-->
+        <el-select
+          v-model="select_cate"
+          placeholder="产品状态"
+          class="handle-select mr10"
+          @change="getState"
+        >
+          <el-option key="1" label="上架商品" value="1"></el-option>
+          <el-option key="2" label="未上架商品" value="0"></el-option>
+          <el-option key="3" label="删除商品" value="-1"></el-option>
+        </el-select>
         <el-input v-model="goods_word" placeholder="搜索商品" class="handle-input mr10"></el-input>
         <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
       </div>
@@ -49,12 +55,21 @@
               icon="el-icon-edit"
               @click="handleEdit(scope.$index, scope.row)"
             >编辑</el-button>
+
             <el-button
+              v-if="state!==-1"
               type="text"
               icon="el-icon-delete"
               class="red"
               @click="handleDelete(scope.$index, scope.row)"
             >删除</el-button>
+
+            <el-button
+              v-if="state===-1"
+              type="text"
+              icon="el-icon-sell"
+              @click="resume(scope.$index, scope.row)"
+            >恢复</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -72,7 +87,7 @@
 
     <!-- 删除提示框 -->
     <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
-      <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+      <div class="del-dialog-cnt">删除该商品，是否确定删除？</div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="delVisible = false">取 消</el-button>
         <el-button type="primary" @click="deleteRow">确 定</el-button>
@@ -233,12 +248,15 @@ import {
   delGoods,
   getPageAllNum,
   getSearch,
-  gsearchNum
+  gsearchNum,
+  resumeGoods
 } from '../../action/Goods/index'
 import { Options } from '../../data/goods/index'
 export default {
   data() {
     return {
+      state: 1, // 商品状态
+      tempVal: '', // 临时存放容器
       tableData: [], // 表单数据
       formStatus: true,
       options: Options,
@@ -324,6 +342,14 @@ export default {
   // 注册组件
   components: {},
   methods: {
+    // 切换商品状态
+    getState() {
+      //console.log(this.select_cate)
+      let val = Number(this.select_cate)
+      //console.log(val)
+      this.state = val
+      this.getData()
+    },
     // 状态转数字
     isTFAndNum(objstr) {
       console.log(objstr)
@@ -410,11 +436,25 @@ export default {
     // 格式化促销和新品
     formatter(row, column) {
       //console.log(row.new)
-      if (row.new === 1 || row.promotion === 1 || row.state === 1) {
-        return '是'
+      if (row.state === -1) {
+        return '已删除'
       } else {
-        return '否'
+        if (row.new === 1 || row.promotion === 1 || row.state === 1) {
+          return '是'
+        } else {
+          return '否'
+        }
       }
+    },
+    //  恢复数据
+    resume(index, row) {
+      //console.log(index, row)
+      resumeGoods({
+        id: row.id
+      }).then(res => {
+        this.$message.success(res.msg)
+        this.getData()
+      })
     },
     // 获取 easy-mock 的模拟数据
     getData() {
@@ -447,13 +487,16 @@ export default {
       //getGoods()
       console.log('刷新数据')
       // 分页用 统计数据数量
-      getPageAllNum({}).then(res => {
+      getPageAllNum({
+        state: this.state === undefined ? 1 : this.state
+      }).then(res => {
         this.pageAllNum = res.count // 显示中数量
         console.log(this.pageAllNum)
       })
       getGoods({
         name: this.form.name === '' ? undefined : this.form.name,
-        state: 1,
+        state: this.state === undefined ? 1 : this.state,
+
         //name:"jee",
         count: 20,
         start: (this.cur_page - 1) * 20
@@ -530,22 +573,30 @@ export default {
       }
       this.editVisible = true
     },
-    // 删除数据
+    // 删除单个数据
     handleDelete(index, row) {
-      console.log(index, row)
+      console.log(index, row.id)
+      console.log(index, row.state)
+      this.tempVal = '' // 清空临时容器
+      this.tempVal = row.id // 存入临时容器
+
       // this.idx = index
       // this.id = row.id
-      // this.delVisible = true
+      this.delVisible = true
     },
+    // 批量删除
     delAll() {
       const length = this.multipleSelection.length
       let str = ''
       this.del_list = this.del_list.concat(this.multipleSelection)
       for (let i = 0; i < length; i++) {
         str += this.multipleSelection[i].name + ' '
+        //console.log(this.multipleSelection[i].id)
+        delGoods({ id: this.multipleSelection[i].id })
       }
       this.$message.error('删除了' + str)
       this.multipleSelection = []
+      this.getData()
     },
     // 显示添加商品窗口
     showAddgoods() {
@@ -577,27 +628,27 @@ export default {
     // 确定删除
     deleteRow() {
       delGoods({
-        id: this.id
+        id: this.tempVal
       }).then(res => {
         if (res.code === '1') {
-          tab: res.data
           this.$message.success(res.msg)
           this.delVisible = false
+          this.getData()
         } else {
           this.$message.success(res.msg)
         }
       })
 
-      if (this.tableData[this.idx].id === this.id) {
-        this.tableData.splice(this.idx, 1)
-      } else {
-        for (let i = 0; i < this.tableData.length; i++) {
-          if (this.tableData[i].id === this.id) {
-            this.tableData.splice(i, 1)
-            return
-          }
-        }
-      }
+      // if (this.tableData[this.idx].id === this.id) {
+      //   this.tableData.splice(this.idx, 1)
+      // } else {
+      //   for (let i = 0; i < this.tableData.length; i++) {
+      //     if (this.tableData[i].id === this.id) {
+      //       this.tableData.splice(i, 1)
+      //       return
+      //     }
+      //   }
+      // }
     }
   }
 }
