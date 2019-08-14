@@ -262,6 +262,7 @@ export default {
       delVisible: false,
       //提交表单属性
       form: {
+        id: '',
         specification: '', // 商品规格
         name: '',
         num: 1,
@@ -459,6 +460,7 @@ export default {
       }).then(res => {
         if (res.code === '1') {
           this.tableData = res.data //表单赋值
+          console.log(this.tableData)
           //this.pageAllNum = Math.ceil(res.data.length / 20) //总页数
         }
         //console.log('res', res.code)
@@ -528,10 +530,12 @@ export default {
       }
       this.editVisible = true
     },
+    // 删除数据
     handleDelete(index, row) {
-      this.idx = index
-      this.id = row.id
-      this.delVisible = true
+      console.log(index, row)
+      // this.idx = index
+      // this.id = row.id
+      // this.delVisible = true
     },
     delAll() {
       const length = this.multipleSelection.length
